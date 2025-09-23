@@ -1,9 +1,18 @@
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { Analytics } from "@vercel/analytics/next"
+import { AuthProvider } from '@/contexts/AuthContext'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import "../styles/globals.css"
 
+// Pages that don't require authentication
+const publicPages = ['/signin', '/signup']
+
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+  const isPublicPage = publicPages.includes(router.pathname)
+
   return (
     <>
       <Head>
@@ -11,10 +20,18 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="description" content="Admin dashboard for managing business operations" />
         <meta name="generator" content="Next.js" />
       </Head>
-      <div className="font-sans">
-        <Component {...pageProps} />
-        <Analytics />
-      </div>
+      <AuthProvider>
+        <div className="font-sans">
+          {isPublicPage ? (
+            <Component {...pageProps} />
+          ) : (
+            <ProtectedRoute>
+              <Component {...pageProps} />
+            </ProtectedRoute>
+          )}
+          <Analytics />
+        </div>
+      </AuthProvider>
     </>
   )
 }

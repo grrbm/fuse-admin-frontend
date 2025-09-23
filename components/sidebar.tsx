@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/AuthContext"
 import {
   BarChart3,
   Users,
@@ -10,6 +11,7 @@ import {
   CreditCard,
   Settings,
   ChevronDown,
+  LogOut,
 } from "lucide-react"
 
 const navigation = [
@@ -34,6 +36,7 @@ const networks = [
 const configuration = [{ name: "Settings", icon: Settings, current: false }]
 
 export function Sidebar() {
+  const { user, logout } = useAuth()
   return (
     <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Logo */}
@@ -141,15 +144,29 @@ export function Sidebar() {
 
       {/* User Profile */}
       <div className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium text-white">AT</span>
+        <div className="flex items-center justify-between space-x-3">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-white">
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
+                {user?.name || 'Admin User'}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email || 'admin@example.com'}
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">Adam Taaev</p>
-            <p className="text-xs text-muted-foreground truncate">adam@rimo.com</p>
-          </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <button
+            onClick={logout}
+            className="p-1 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent rounded"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
