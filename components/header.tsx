@@ -1,8 +1,11 @@
-import { Search, MoreHorizontal, ChevronDown } from "lucide-react"
+import { Search, MoreHorizontal, ChevronDown, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function Header() {
+  const { user, logout } = useAuth()
+  
   return (
     <header className="border-b border-border bg-background px-6 py-4">
       <div className="flex items-center justify-between">
@@ -27,11 +30,25 @@ export function Header() {
 
           {/* User Profile */}
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-white">SH</span>
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-white">
+                {user?.firstName?.charAt(0).toUpperCase() || 'A'}
+                {user?.lastName?.charAt(0).toUpperCase() || 'U'}
+              </span>
             </div>
-            <span className="text-sm font-medium">Sana Health</span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">
+              {user?.firstName && user?.lastName 
+                ? `${user.firstName} ${user.lastName}`
+                : user?.email || 'Admin User'
+              }
+            </span>
+            <button
+              onClick={logout}
+              className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>

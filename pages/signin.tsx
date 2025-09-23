@@ -130,18 +130,6 @@ export default function SignIn() {
             </CardContent>
           </Card>
 
-          {/* Demo Credentials */}
-          <Card className="bg-muted/50 border-border">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <h3 className="text-sm font-medium text-foreground mb-2">Demo Credentials</h3>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p>Email: admin@demo.com</p>
-                  <p>Password: demo123</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </>

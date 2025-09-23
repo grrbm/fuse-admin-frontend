@@ -46,7 +46,9 @@ export default function BrandSignUp() {
     setError(null)
     
     try {
-      const response = await fetch('http://localhost:3001/auth/signup', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      console.log('API URL:', apiUrl)
+      const response = await fetch(`${apiUrl}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

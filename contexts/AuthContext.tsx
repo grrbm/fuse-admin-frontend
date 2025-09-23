@@ -6,6 +6,8 @@ interface User {
   email: string
   name: string
   role: string
+  firstName?: string
+  lastName?: string
   companyName?: string
   phone?: string
   website?: string
@@ -54,7 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null)
     
     try {
-      const response = await fetch('/api/auth/signin', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      console.log('API URL:', apiUrl)
+      const response = await fetch(`${apiUrl}/auth/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json()
 
       if (response.ok && data.success) {
-        const { token: authToken, user: userData } = data.data
+        const { token: authToken, user: userData } = data
         
         // Store in localStorage
         localStorage.setItem('admin_token', authToken)
@@ -94,18 +98,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null)
     
     try {
-      const response = await fetch('/api/auth/signup', {
+      const [firstName, ...lastNameParts] = name.split(' ')
+      const lastName = lastNameParts.join(' ') || ''
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      console.log('API URL:', apiUrl)
+      const response = await fetch(`${apiUrl}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({ 
+          firstName, 
+          lastName, 
+          email, 
+          password, 
+          role: 'brand' 
+        }),
       })
 
       const data = await response.json()
 
       if (response.ok && data.success) {
-        const { token: authToken, user: userData } = data.data
+        const { token: authToken, user: userData } = data
         
         // Store in localStorage
         localStorage.setItem('admin_token', authToken)
