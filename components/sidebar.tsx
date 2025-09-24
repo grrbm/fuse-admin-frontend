@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/AuthContext"
+import Link from "next/link"
+import { useRouter } from "next/router"
 import {
   BarChart3,
   Users,
@@ -12,11 +14,13 @@ import {
   Settings,
   ChevronDown,
   LogOut,
+  Crown,
 } from "lucide-react"
 
 const navigation = [
-  { name: "Overview", icon: BarChart3, current: true },
-  { name: "Customers", icon: Users, current: false },
+  { name: "Overview", icon: BarChart3, current: true, href: "/" },
+  { name: "Customers", icon: Users, current: false, href: "/customers" },
+  { name: "Plans", icon: Crown, current: false, href: "/plans" },
 ]
 
 const operations = [
@@ -37,32 +41,36 @@ const configuration = [{ name: "Settings", icon: Settings, current: false }]
 
 export function Sidebar() {
   const { user, logout } = useAuth()
+  const router = useRouter()
   return (
     <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Logo */}
       <div className="p-6">
-        <h1 className="text-xl font-bold text-sidebar-foreground">Rimo</h1>
+        <h1 className="text-xl font-bold text-sidebar-foreground">Fuse</h1>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-4 space-y-1">
         {/* Main Navigation */}
         <div className="space-y-1">
-          {navigation.map((item) => (
-            <a
-              key={item.name}
-              href="#"
-              className={cn(
-                "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                item.current
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )}
-            >
-              <item.icon className="mr-3 h-4 w-4" />
-              {item.name}
-            </a>
-          ))}
+          {navigation.map((item) => {
+            const isActive = router.pathname === item.href
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <item.icon className="mr-3 h-4 w-4" />
+                {item.name}
+              </Link>
+            )
+          })}
         </div>
 
         {/* Operations Section */}
