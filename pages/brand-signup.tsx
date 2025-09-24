@@ -96,7 +96,7 @@ export default function BrandSignUp() {
                 <Building2 className="h-6 w-6 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Rimo</h1>
+            <h1 className="text-2xl font-bold text-foreground">Fuse</h1>
             <p className="text-muted-foreground">Create your brand partner account</p>
           </div>
 

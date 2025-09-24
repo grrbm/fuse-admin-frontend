@@ -142,7 +142,8 @@ export default function SignUp() {
       const data = await response.json()
 
       if (response.ok && data.success) {
-        router.push('/signin?message=Brand account created successfully. Please sign in.')
+        // Show success message and redirect to signin
+        router.push('/signin?message=Account created successfully! Please check your email to activate your account before signing in.')
       } else {
         setError(data.message || 'Signup failed')
       }
@@ -172,7 +173,7 @@ export default function SignUp() {
   return (
     <>
       <Head>
-        <title>Brand Sign Up - Rimo</title>
+        <title>Brand Sign Up - Fuse</title>
         <meta name="description" content="Create your brand partner account" />
       </Head>
       
@@ -185,7 +186,7 @@ export default function SignUp() {
                 <Building2 className="h-6 w-6 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Rimo</h1>
+            <h1 className="text-2xl font-bold text-foreground">Fuse</h1>
             <p className="text-muted-foreground">Create your brand partner account</p>
           </div>
 

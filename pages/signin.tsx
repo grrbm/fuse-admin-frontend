@@ -13,6 +13,7 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false)
   const { login, isLoading, error, user } = useAuth()
   const router = useRouter()
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -20,6 +21,13 @@ export default function SignIn() {
       router.push('/')
     }
   }, [user, router])
+
+  // Check for query parameter messages
+  useEffect(() => {
+    if (router.query.message && typeof router.query.message === 'string') {
+      setSuccessMessage(router.query.message)
+    }
+  }, [router.query.message])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,6 +72,12 @@ export default function SignIn() {
                 {error && (
                   <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                     {error}
+                  </div>
+                )}
+
+                {successMessage && (
+                  <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                    {successMessage}
                   </div>
                 )}
                 
