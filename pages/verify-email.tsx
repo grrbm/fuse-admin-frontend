@@ -43,9 +43,9 @@ export default function VerifyEmail() {
           
           setIsLoggingIn(true)
           
-          // Redirect to dashboard after a short delay
+          // Redirect to dashboard after a short delay with full page reload to refresh auth context
           setTimeout(() => {
-            router.push('/')
+            window.location.href = '/'
           }, 2000)
         }
       } else {

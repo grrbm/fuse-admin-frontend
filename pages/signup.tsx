@@ -140,12 +140,24 @@ export default function SignUp() {
       })
 
       const data = await response.json()
+      
+      console.log('Signup response:', { status: response.status, data })
 
       if (response.ok && data.success) {
         // Show success message and redirect to signin
         router.push('/signin?message=Account created successfully! Please check your email to activate your account before signing in.')
       } else {
-        setError(data.message || 'Signup failed')
+        // Handle different types of errors
+        let errorMessage = 'Signup failed'
+        
+        if (response.status === 409) {
+          errorMessage = 'An account with this email already exists. Please use a different email or try signing in.'
+        } else if (data.message) {
+          errorMessage = data.message
+        }
+        
+        console.log('Setting error:', errorMessage)
+        setError(errorMessage)
       }
     } catch (error) {
       setError('Network error. Please try again.')
@@ -196,13 +208,6 @@ export default function SignUp() {
               <CardTitle className="text-center">Brand Partner Sign Up</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              {/* Error Message */}
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md mb-6">
-                  {error}
-                </div>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -497,6 +502,13 @@ export default function SignUp() {
                 >
                   {isLoading ? 'Creating account...' : 'Create Brand Account'}
                 </Button>
+
+                {/* Error Message - Moved to bottom for better visibility */}
+                {error && (
+                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md mt-4">
+                    {error}
+                  </div>
+                )}
               </form>
 
               <div className="mt-6 text-center">

@@ -7,7 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import "../styles/globals.css"
 
 // Pages that don't require authentication
-const publicPages = ['/signin', '/signup']
+const publicPages = ['/signin', '/signup', '/verify-email']
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
