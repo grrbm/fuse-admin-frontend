@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { useAuth } from '@/contexts/AuthContext'
@@ -12,7 +12,10 @@ import {
     X,
     Loader2,
     CheckCircle,
-    XCircle
+    XCircle,
+    Upload,
+    ImageIcon,
+    Trash2
 } from 'lucide-react'
 
 interface Treatment {
@@ -30,7 +33,11 @@ export default function TreatmentEdit() {
     const [treatment, setTreatment] = useState<Treatment | null>(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [uploadingLogo, setUploadingLogo] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [logoFile, setLogoFile] = useState<File | null>(null)
+    const [logoPreview, setLogoPreview] = useState<string | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const [formData, setFormData] = useState({
         name: '',
         active: true
@@ -136,6 +143,140 @@ export default function TreatmentEdit() {
             ...prev,
             active
         }))
+    }
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                setError('Please select an image file')
+                return
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('File size must be less than 5MB')
+                return
+            }
+
+            setLogoFile(file)
+
+            // Create preview
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setLogoPreview(e.target?.result as string)
+            }
+            reader.readAsDataURL(file)
+
+            setError(null)
+        }
+    }
+
+    const handleLogoUpload = async () => {
+        if (!treatment || !logoFile || !token) return
+
+        setUploadingLogo(true)
+        setError(null)
+
+        try {
+            const formData = new FormData()
+            formData.append('logo', logoFile)
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatment/${treatment.id}/upload-logo`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                if (data.success) {
+                    // Update the treatment with the new logo URL
+                    setTreatment(prev => prev ? { ...prev, treatmentLogo: data.data.treatmentLogo } : null)
+                    setLogoFile(null)
+                    setLogoPreview(null)
+                    console.log('✅ Logo uploaded successfully')
+
+                    // Clear the file input
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = ''
+                    }
+                } else {
+                    setError(data.message || 'Failed to upload logo')
+                }
+            } else {
+                const errorText = await response.text()
+                setError(`Failed to upload logo: ${response.status} ${response.statusText}`)
+            }
+        } catch (err) {
+            console.error('Error uploading logo:', err)
+            setError('Failed to upload logo')
+        } finally {
+            setUploadingLogo(false)
+        }
+    }
+
+    const handleRemoveLogo = async () => {
+        if (!treatment || !token) return
+
+        if (!confirm('Are you sure you want to remove the treatment logo?')) {
+            return
+        }
+
+        setUploadingLogo(true)
+        setError(null)
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatment/${treatment.id}/upload-logo`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ removeLogo: true })
+            })
+
+            // Check if removal was successful
+            if (response.ok) {
+                const data = await response.json()
+                if (data.success) {
+                    // Update the treatment to remove the logo
+                    setTreatment(prev => prev ? { ...prev, treatmentLogo: '' } : null)
+                    console.log('✅ Logo removed successfully')
+                } else {
+                    setError(data.message || 'Failed to remove logo')
+                }
+            } else {
+                // Try alternative method: upload empty form data
+                const formData = new FormData()
+                const response2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatment/${treatment.id}/upload-logo`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData // Empty form data
+                })
+
+                if (response2.ok) {
+                    const data = await response2.json()
+                    if (data.success) {
+                        setTreatment(prev => prev ? { ...prev, treatmentLogo: '' } : null)
+                        console.log('✅ Logo removed successfully')
+                        return
+                    }
+                }
+
+                setError(`Failed to remove logo: ${response.status} ${response.statusText}`)
+            }
+        } catch (err) {
+            console.error('Error removing logo:', err)
+            setError('Failed to remove logo')
+        } finally {
+            setUploadingLogo(false)
+        }
     }
 
     if (loading) {
@@ -258,8 +399,8 @@ export default function TreatmentEdit() {
                                                         type="button"
                                                         onClick={() => handleStatusChange(true)}
                                                         className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors ${formData.active
-                                                                ? 'bg-green-100 border-green-300 text-green-800'
-                                                                : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
+                                                            ? 'bg-green-100 border-green-300 text-green-800'
+                                                            : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
                                                             }`}
                                                     >
                                                         <CheckCircle className="h-4 w-4" />
@@ -269,8 +410,8 @@ export default function TreatmentEdit() {
                                                         type="button"
                                                         onClick={() => handleStatusChange(false)}
                                                         className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors ${!formData.active
-                                                                ? 'bg-red-100 border-red-300 text-red-800'
-                                                                : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
+                                                            ? 'bg-red-100 border-red-300 text-red-800'
+                                                            : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
                                                             }`}
                                                     >
                                                         <XCircle className="h-4 w-4" />
@@ -356,25 +497,129 @@ export default function TreatmentEdit() {
                                 </Card>
 
                                 {/* Treatment Logo */}
-                                {treatment.treatmentLogo && (
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Current Logo</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <img
-                                                    src={treatment.treatmentLogo}
-                                                    alt={treatment.name}
-                                                    className="w-full max-w-xs mx-auto h-32 object-cover rounded-lg border"
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <ImageIcon className="h-5 w-5" />
+                                            Treatment Logo
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-4">
+                                            {/* Current Logo */}
+                                            {treatment.treatmentLogo && (
+                                                <div className="text-center">
+                                                    <img
+                                                        src={treatment.treatmentLogo}
+                                                        alt={treatment.name}
+                                                        className="w-full max-w-xs mx-auto h-32 object-cover rounded-lg border"
+                                                    />
+                                                    <p className="text-sm text-muted-foreground mt-2">
+                                                        Current logo
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Logo Preview */}
+                                            {logoPreview && (
+                                                <div className="text-center">
+                                                    <img
+                                                        src={logoPreview}
+                                                        alt="New logo preview"
+                                                        className="w-full max-w-xs mx-auto h-32 object-cover rounded-lg border-2 border-primary"
+                                                    />
+                                                    <p className="text-sm text-primary mt-2">
+                                                        New logo preview
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* File Input */}
+                                            <div className="space-y-2">
+                                                <input
+                                                    ref={fileInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleFileSelect}
+                                                    className="hidden"
+                                                    id="logo-upload"
                                                 />
-                                                <p className="text-sm text-muted-foreground mt-2">
-                                                    Logo will remain unchanged
-                                                </p>
+                                                <label htmlFor="logo-upload">
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full cursor-pointer"
+                                                        asChild
+                                                    >
+                                                        <span>
+                                                            <Upload className="h-4 w-4 mr-2" />
+                                                            {logoFile ? 'Change Logo' : 'Upload New Logo'}
+                                                        </span>
+                                                    </Button>
+                                                </label>
+
+                                                {logoFile && (
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            onClick={handleLogoUpload}
+                                                            disabled={uploadingLogo}
+                                                            className="flex-1"
+                                                        >
+                                                            {uploadingLogo ? (
+                                                                <>
+                                                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                                    Uploading...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Upload className="h-4 w-4 mr-2" />
+                                                                    Upload Logo
+                                                                </>
+                                                            )}
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setLogoFile(null)
+                                                                setLogoPreview(null)
+                                                                if (fileInputRef.current) {
+                                                                    fileInputRef.current.value = ''
+                                                                }
+                                                            }}
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                )}
+
+                                                {/* Remove Logo Button */}
+                                                {treatment.treatmentLogo && (
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={handleRemoveLogo}
+                                                        disabled={uploadingLogo}
+                                                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    >
+                                                        {uploadingLogo ? (
+                                                            <>
+                                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                                Removing...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                                Remove Logo
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                )}
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                )}
+
+                                            <p className="text-xs text-muted-foreground">
+                                                Supported formats: JPEG, PNG, WebP (max 5MB)
+                                            </p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </div>
                         </div>
                     </form>
