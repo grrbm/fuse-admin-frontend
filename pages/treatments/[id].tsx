@@ -136,6 +136,9 @@ export default function TreatmentDetail() {
     }
 
     const formatPrice = (price: number) => {
+        if (isNaN(price) || price === null || price === undefined) {
+            return '$0.00'
+        }
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD'
