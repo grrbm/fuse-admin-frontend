@@ -18,7 +18,8 @@ import {
     Package,
     DollarSign,
     FileText,
-    Hash
+    Hash,
+    Check
 } from 'lucide-react'
 
 export default function CreateProduct() {
@@ -27,6 +28,7 @@ export default function CreateProduct() {
     const [error, setError] = useState<string | null>(null)
     const [imageFile, setImageFile] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [imageConfirmed, setImageConfirmed] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [formData, setFormData] = useState({
         name: '',
@@ -40,12 +42,54 @@ export default function CreateProduct() {
     const { user, token } = useAuth()
     const router = useRouter()
 
+    const uploadProductImage = async (productId: string) => {
+        if (!imageFile || !token) return
+
+        try {
+            console.log('🔍 Uploading product image for product:', productId)
+
+            const formData = new FormData()
+            formData.append('image', imageFile)
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${productId}/upload-image`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                    // Don't set Content-Type for FormData - let browser set it with boundary
+                },
+                body: formData
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                if (data.success) {
+                    console.log('✅ Product image uploaded successfully')
+
+                    // Clear the image after successful upload
+                    setImageFile(null)
+                    setImagePreview(null)
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = ''
+                    }
+                } else {
+                    console.error('❌ Failed to upload product image:', data.message)
+                }
+            } else {
+                const errorText = await response.text()
+                console.error(`❌ Failed to upload product image: ${response.status} ${response.statusText}`)
+            }
+        } catch (err) {
+            console.error('Error uploading product image:', err)
+        }
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!token) return
 
         setLoading(true)
         setError(null)
+        setImageConfirmed(false)
 
         try {
             console.log('🔍 Creating new product')
@@ -64,6 +108,18 @@ export default function CreateProduct() {
                 if (data.success) {
                     console.log('✅ Product created successfully')
                     const newProductId = data.data.id
+
+                    // Upload image if one was selected
+                    if (imageFile) {
+                        try {
+                            await uploadProductImage(newProductId)
+                        } catch (imageUploadError) {
+                            console.error('⚠️ Product created but image upload failed:', imageUploadError)
+                            // Don't fail the entire process - the product was created successfully
+                            // User can upload image later from the edit page
+                        }
+                    }
+
                     router.push(`/products/${newProductId}`)
                 } else {
                     setError(data.message || 'Failed to create product')
@@ -111,6 +167,7 @@ export default function CreateProduct() {
             }
 
             setImageFile(file)
+            setImageConfirmed(false) // Reset confirmation when new image is selected
 
             // Create preview
             const reader = new FileReader()
@@ -124,25 +181,25 @@ export default function CreateProduct() {
     }
 
     const handleImageUpload = async () => {
-        if (!imageFile || !token) return
+        // The image upload now happens automatically after product creation
+        // This button is for visual feedback - the upload will happen when the product is created
+        if (!imageFile) {
+            setError('Please select an image first')
+            return
+        }
 
         setUploadingImage(true)
         setError(null)
 
         try {
-            const formData = new FormData()
-            formData.append('image', imageFile)
+            // Show feedback that image is ready for upload
+            console.log('✅ Image confirmed and ready for upload after product creation')
 
-            // We'll upload the image after the product is created
-            // For now, just clear the file selection
-            setImageFile(null)
-            setImagePreview(null)
+            // Mark image as confirmed - it will be uploaded after product creation
+            setImageConfirmed(true)
 
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ''
-            }
-
-            console.log('✅ Image selected for upload (will be uploaded after product creation)')
+            // Keep the image selected - it will be uploaded after product creation
+            // Don't clear it here, only clear after successful upload
 
         } catch (err) {
             console.error('Error handling image:', err)
@@ -155,6 +212,7 @@ export default function CreateProduct() {
     const handleRemoveImage = () => {
         setImageFile(null)
         setImagePreview(null)
+        setImageConfirmed(false)
         if (fileInputRef.current) {
             fileInputRef.current.value = ''
         }
@@ -406,7 +464,10 @@ export default function CreateProduct() {
                                                         className="w-full max-w-xs mx-auto h-32 object-cover rounded-lg border-2 border-primary"
                                                     />
                                                     <p className="text-sm text-primary mt-2">
-                                                        Image preview (will be uploaded after creation)
+                                                        {imageConfirmed
+                                                            ? "Image confirmed! Will be uploaded after product creation."
+                                                            : "Image selected! Click 'Confirm Selection' to proceed."
+                                                        }
                                                     </p>
                                                 </div>
                                             )}
@@ -438,18 +499,23 @@ export default function CreateProduct() {
                                                     <div className="flex gap-2">
                                                         <Button
                                                             onClick={handleImageUpload}
-                                                            disabled={uploadingImage}
+                                                            disabled={uploadingImage || imageConfirmed}
                                                             className="flex-1"
                                                         >
                                                             {uploadingImage ? (
                                                                 <>
                                                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                                                    Uploading...
+                                                                    Processing...
+                                                                </>
+                                                            ) : imageConfirmed ? (
+                                                                <>
+                                                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                                                    Confirmed ✓
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <Upload className="h-4 w-4 mr-2" />
-                                                                    Select Image
+                                                                    Confirm Selection
                                                                 </>
                                                             )}
                                                         </Button>
@@ -479,10 +545,10 @@ export default function CreateProduct() {
                                         <div className="space-y-2 text-sm text-muted-foreground">
                                             <p>1. Fill in the basic product information</p>
                                             <p>2. Add active ingredients if applicable</p>
-                                            <p>3. Optionally select a product image</p>
+                                            <p>3. Optionally select a product image and click "Confirm Selection"</p>
                                             <p>4. Click "Create Product" to save</p>
                                             <p className="pt-2 border-t">
-                                                <strong>Note:</strong> You can edit the product and upload images after creation.
+                                                <strong>Note:</strong> Images are uploaded automatically after the product is created.
                                             </p>
                                         </div>
                                     </CardContent>
@@ -529,3 +595,4 @@ function getStatusBadge(active: boolean) {
         ? <Badge className="bg-green-100 text-green-800 border-green-300"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
         : <Badge className="bg-red-100 text-red-800 border-red-300"><XCircle className="h-3 w-3 mr-1" /> Inactive</Badge>
 }
+
