@@ -397,7 +397,7 @@ export default function Orders() {
                                                 <div>
                                                     <CardTitle className="text-lg">{order.orderNumber}</CardTitle>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {order.user.firstName} {order.user.lastName} • {order.treatment.name}
+                                                        {order.user?.firstName || 'N/A'} {order.user?.lastName || 'N/A'} • {order.treatment?.name || 'N/A'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -424,7 +424,7 @@ export default function Orders() {
                                                         <User className="h-4 w-4 text-muted-foreground" />
                                                         <span className="text-sm text-muted-foreground">Customer</span>
                                                     </div>
-                                                    <span className="font-semibold">{order.user.firstName} {order.user.lastName}</span>
+                                                    <span className="font-semibold">{order.user?.firstName || 'N/A'} {order.user?.lastName || 'N/A'}</span>
                                                 </div>
 
                                                 <div className="flex justify-between items-center">
