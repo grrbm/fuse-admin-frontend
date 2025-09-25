@@ -20,7 +20,8 @@ import {
     Edit,
     Pill,
     FileText,
-    Hash
+    Hash,
+    Trash2
 } from 'lucide-react'
 
 interface Product {
@@ -122,6 +123,42 @@ export default function ProductDetail() {
         })
     }
 
+    const handleDeleteProduct = async () => {
+        if (!product || !token) return
+
+        if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone and will also delete the associated image if it exists.`)) {
+            return
+        }
+
+        try {
+            console.log('🔍 Deleting product:', product.id)
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${product.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                if (data.success) {
+                    console.log('✅ Product deleted successfully')
+                    router.push('/products')
+                } else {
+                    setError(data.message || 'Failed to delete product')
+                }
+            } else {
+                const errorText = await response.text()
+                setError(`Failed to delete product: ${response.status} ${response.statusText}`)
+            }
+        } catch (err) {
+            console.error('Error deleting product:', err)
+            setError('Failed to delete product')
+        }
+    }
+
     if (loading) {
         return (
             <Layout>
@@ -200,6 +237,14 @@ export default function ProductDetail() {
                             >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Product
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={handleDeleteProduct}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete Product
                             </Button>
                         </div>
                     </div>
