@@ -24,8 +24,8 @@ const navigation = [
 ]
 
 const operations = [
-  { name: "Treatments", icon: Stethoscope, current: false },
-  { name: "Orders", icon: ShoppingCart, current: false, hasSubmenu: true },
+  { name: "Treatments", icon: Stethoscope, current: false, href: "/treatments" },
+  { name: "Orders", icon: ShoppingCart, current: false, href: "/orders", hasSubmenu: true },
 ]
 
 const services = [{ name: "Offerings", icon: Gift, current: false, hasSubmenu: true }]
@@ -77,19 +77,27 @@ export function Sidebar() {
         <div className="pt-6">
           <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Operations</h3>
           <div className="space-y-1">
-            {operations.map((item) => (
-              <a
-                key={item.name}
-                href="#"
-                className="group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-              >
-                <div className="flex items-center">
-                  <item.icon className="mr-3 h-4 w-4" />
-                  {item.name}
-                </div>
-                {item.hasSubmenu && <ChevronDown className="h-4 w-4" />}
-              </a>
-            ))}
+            {operations.map((item) => {
+              const isActive = router.pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href || "#"}
+                  className={cn(
+                    "group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    isActive
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  )}
+                >
+                  <div className="flex items-center">
+                    <item.icon className="mr-3 h-4 w-4" />
+                    {item.name}
+                  </div>
+                  {item.hasSubmenu && <ChevronDown className="h-4 w-4" />}
+                </Link>
+              )
+            })}
           </div>
         </div>
 

@@ -34,12 +34,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check for existing token on mount
   useEffect(() => {
+    console.log('🔐 AuthContext mounted')
     const storedToken = localStorage.getItem('admin_token')
     const storedUser = localStorage.getItem('admin_user')
-    
+
+    console.log('🔐 Stored token exists:', !!storedToken)
+    console.log('🔐 Stored user exists:', !!storedUser)
+
     if (storedToken && storedUser) {
       try {
         const userData = JSON.parse(storedUser)
+        console.log('🔐 Parsed user data from localStorage:', userData)
+        console.log('🔐 User clinicId from localStorage:', userData?.clinicId)
         setToken(storedToken)
         setUser(userData)
       } catch (error) {
@@ -48,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('admin_user')
       }
     }
+    console.log('🔐 AuthContext initialization complete')
     setIsLoading(false)
   }, [])
 
