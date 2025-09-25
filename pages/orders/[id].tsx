@@ -383,24 +383,6 @@ export default function OrderDetail() {
                                 </CardContent>
                             </Card>
 
-                            {/* Questionnaire Answers */}
-                            {order.questionnaireAnswers && Object.keys(order.questionnaireAnswers || {}).length > 0 && (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Questionnaire Responses</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-3">
-                                            {Object.entries(order.questionnaireAnswers || {}).map(([key, value]) => (
-                                                <div key={key} className="flex justify-between">
-                                                    <span className="text-muted-foreground">{key}:</span>
-                                                    <span className="font-semibold">{String(value || 'N/A')}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
                         </div>
 
                         {/* Order Summary */}
