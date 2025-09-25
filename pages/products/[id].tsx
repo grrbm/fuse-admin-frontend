@@ -58,7 +58,7 @@ export default function ProductDetail() {
                 setLoading(true)
                 console.log('🔍 Fetching product:', id)
 
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -133,7 +133,7 @@ export default function ProductDetail() {
         try {
             console.log('🔍 Deleting product:', product.id)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${product.id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${product.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -145,7 +145,7 @@ export default function ProductDetail() {
                 const data = await response.json()
                 if (data.success) {
                     console.log('✅ Product deleted successfully')
-                    router.push('/products')
+                    router.push('/api/products')
                 } else {
                     setError(data.message || 'Failed to delete product')
                 }
@@ -179,7 +179,7 @@ export default function ProductDetail() {
                     <div className="max-w-4xl mx-auto">
                         <Button
                             variant="outline"
-                            onClick={() => router.push('/products')}
+                            onClick={() => router.push('/api/products')}
                             className="mb-6"
                         >
                             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -192,7 +192,7 @@ export default function ProductDetail() {
                                 <div>
                                     <h3 className="text-lg font-semibold text-foreground mb-2">Product Not Found</h3>
                                     <p className="text-muted-foreground mb-4">{error || 'The requested product could not be found.'}</p>
-                                    <Button onClick={() => router.push('/products')}>
+                                    <Button onClick={() => router.push('/api/products')}>
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         Back to Products
                                     </Button>
@@ -219,7 +219,7 @@ export default function ProductDetail() {
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="outline"
-                                onClick={() => router.push('/products')}
+                                onClick={() => router.push('/api/products')}
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back to Products
@@ -233,7 +233,7 @@ export default function ProductDetail() {
                             {getStatusBadge(product.active)}
                             <Button
                                 variant="outline"
-                                onClick={() => router.push(`/products/${product.id}/edit`)}
+                                onClick={() => router.push(`/api/products/${product.id}/edit`)}
                             >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Product

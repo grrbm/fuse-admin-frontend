@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import "../styles/globals.css"
 
 // Pages that don't require authentication
@@ -21,16 +22,18 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="generator" content="Next.js" />
       </Head>
       <AuthProvider>
-        <div className="font-sans">
-          {isPublicPage ? (
-            <Component {...pageProps} />
-          ) : (
-            <ProtectedRoute>
+        <ThemeProvider>
+          <div className="font-sans">
+            {isPublicPage ? (
               <Component {...pageProps} />
-            </ProtectedRoute>
-          )}
-          <Analytics />
-        </div>
+            ) : (
+              <ProtectedRoute>
+                <Component {...pageProps} />
+              </ProtectedRoute>
+            )}
+            <Analytics />
+          </div>
+        </ThemeProvider>
       </AuthProvider>
     </>
   )

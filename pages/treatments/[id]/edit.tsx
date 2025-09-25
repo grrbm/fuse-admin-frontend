@@ -54,7 +54,7 @@ export default function TreatmentEdit() {
                 setLoading(true)
                 console.log('🔍 Fetching treatment for edit:', id)
 
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatments/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/treatments/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ export default function TreatmentEdit() {
         try {
             console.log('🔍 Saving treatment:', treatment.id)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatments`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/treatments`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -114,7 +114,7 @@ export default function TreatmentEdit() {
                 const data = await response.json()
                 if (data.success) {
                     console.log('✅ Treatment updated successfully')
-                    router.push(`/treatments/${treatment.id}`)
+                    router.push(`/api/treatments/${treatment.id}`)
                 } else {
                     setError(data.message || 'Failed to update treatment')
                 }
@@ -183,7 +183,7 @@ export default function TreatmentEdit() {
             const formData = new FormData()
             formData.append('logo', logoFile)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatment/${treatment.id}/upload-logo`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/treatment/${treatment.id}/upload-logo`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -230,7 +230,7 @@ export default function TreatmentEdit() {
         setError(null)
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatment/${treatment.id}/upload-logo`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/treatment/${treatment.id}/upload-logo`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -252,7 +252,7 @@ export default function TreatmentEdit() {
             } else {
                 // Try alternative method: upload empty form data
                 const formData = new FormData()
-                const response2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatment/${treatment.id}/upload-logo`, {
+                const response2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/treatment/${treatment.id}/upload-logo`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -299,7 +299,7 @@ export default function TreatmentEdit() {
                     <div className="max-w-4xl mx-auto">
                         <Button
                             variant="outline"
-                            onClick={() => router.push('/treatments')}
+                            onClick={() => router.push('/api/treatments')}
                             className="mb-6"
                         >
                             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -312,7 +312,7 @@ export default function TreatmentEdit() {
                                 <div>
                                     <h3 className="text-lg font-semibold text-foreground mb-2">Treatment Not Found</h3>
                                     <p className="text-muted-foreground mb-4">{error || 'The requested treatment could not be found.'}</p>
-                                    <Button onClick={() => router.push('/treatments')}>
+                                    <Button onClick={() => router.push('/api/treatments')}>
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         Back to Treatments
                                     </Button>
@@ -339,7 +339,7 @@ export default function TreatmentEdit() {
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="outline"
-                                onClick={() => router.push(`/treatments/${treatment.id}`)}
+                                onClick={() => router.push(`/api/treatments/${treatment.id}`)}
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back to Treatment
@@ -487,7 +487,7 @@ export default function TreatmentEdit() {
                                                 type="button"
                                                 variant="outline"
                                                 className="w-full"
-                                                onClick={() => router.push(`/treatments/${treatment.id}`)}
+                                                onClick={() => router.push(`/api/treatments/${treatment.id}`)}
                                             >
                                                 <X className="h-4 w-4 mr-2" />
                                                 Cancel

@@ -90,7 +90,7 @@ export default function TreatmentDetail() {
                 setLoading(true)
                 console.log('🔍 Fetching treatment:', id)
 
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/treatments/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/treatments/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -175,7 +175,7 @@ export default function TreatmentDetail() {
                     <div className="max-w-4xl mx-auto">
                         <Button
                             variant="outline"
-                            onClick={() => router.push('/treatments')}
+                            onClick={() => router.push('/api/treatments')}
                             className="mb-6"
                         >
                             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -188,7 +188,7 @@ export default function TreatmentDetail() {
                                 <div>
                                     <h3 className="text-lg font-semibold text-foreground mb-2">Treatment Not Found</h3>
                                     <p className="text-muted-foreground mb-4">{error || 'The requested treatment could not be found.'}</p>
-                                    <Button onClick={() => router.push('/treatments')}>
+                                    <Button onClick={() => router.push('/api/treatments')}>
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         Back to Treatments
                                     </Button>
@@ -215,7 +215,7 @@ export default function TreatmentDetail() {
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="outline"
-                                onClick={() => router.push('/treatments')}
+                                onClick={() => router.push('/api/treatments')}
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back to Treatments

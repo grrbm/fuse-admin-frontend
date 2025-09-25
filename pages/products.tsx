@@ -85,7 +85,7 @@ export default function Products() {
             }, 10000) // 10 second timeout
 
             console.log('🔍 Making fetch request...')
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/by-clinic/${userWithClinic.clinicId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/by-clinic/${userWithClinic.clinicId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -172,7 +172,7 @@ export default function Products() {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${productId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -267,7 +267,7 @@ export default function Products() {
                             <p className="text-muted-foreground">Manage and monitor your clinic's product catalog</p>
                         </div>
                         <Button
-                            onClick={() => router.push('/products/new')}
+                            onClick={() => router.push('/api/products/new')}
                             disabled={!userWithClinic?.clinicId}
                             title={!userWithClinic?.clinicId ? 'You need to be assigned to a clinic to add products' : 'Add new product'}
                         >
@@ -387,7 +387,7 @@ export default function Products() {
                                                     variant="outline"
                                                     size="sm"
                                                     className="flex-1"
-                                                    onClick={() => router.push(`/products/${product.id}`)}
+                                                    onClick={() => router.push(`/api/products/${product.id}`)}
                                                 >
                                                     <Eye className="h-4 w-4 mr-1" />
                                                     View
@@ -396,7 +396,7 @@ export default function Products() {
                                                     variant="outline"
                                                     size="sm"
                                                     className="flex-1"
-                                                    onClick={() => router.push(`/products/${product.id}/edit`)}
+                                                    onClick={() => router.push(`/api/products/${product.id}/edit`)}
                                                 >
                                                     <Edit className="h-4 w-4 mr-1" />
                                                     Edit
@@ -423,7 +423,7 @@ export default function Products() {
                                 <div>
                                     <h3 className="text-lg font-semibold text-foreground mb-2">No products found</h3>
                                     <p className="text-muted-foreground mb-4">Get started by creating your first product.</p>
-                                    <Button onClick={() => router.push('/products/new')}>
+                                    <Button onClick={() => router.push('/api/products/new')}>
                                         <Plus className="h-4 w-4 mr-2" />
                                         Add Product
                                     </Button>

@@ -28,8 +28,8 @@ export default function VerifyEmail() {
     try {
       setStatus('loading')
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiUrl}/auth/verify-email?token=${token}`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const response = await fetch(`${apiUrl}/api/auth/verify-email?token=${token}`)
       const data = await response.json()
 
       if (response.ok && data.success) {

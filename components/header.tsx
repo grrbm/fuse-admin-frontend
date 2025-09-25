@@ -1,10 +1,12 @@
-import { Search, MoreHorizontal, ChevronDown, LogOut } from "lucide-react"
+import { Search, MoreHorizontal, ChevronDown, LogOut, MoonStar, SunMedium } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/contexts/AuthContext"
+import { useTheme } from "@/contexts/ThemeContext"
 
 export function Header() {
   const { user, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   
   return (
     <header className="border-b border-border bg-background px-6 py-4">
@@ -27,6 +29,18 @@ export function Header() {
           <Button variant="ghost" size="sm">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
+
+          <button
+            onClick={toggleTheme}
+            className="rounded-full border border-border bg-muted/40 p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? (
+              <SunMedium className="h-4 w-4" />
+            ) : (
+              <MoonStar className="h-4 w-4" />
+            )}
+          </button>
 
           {/* User Profile */}
           <div className="flex items-center space-x-2">

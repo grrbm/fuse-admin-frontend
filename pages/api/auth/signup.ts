@@ -32,13 +32,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ success: false, message: 'Method not allowed' })
   }
 
-  const { email, password, name } = req.body
+  const { email, password, firstName, lastName, name } = req.body
 
-  // Validate input
-  if (!email || !password || !name) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Email, password, and name are required' 
+  // Validate input - handle both formats (separate firstName/lastName or combined name)
+  const fullName = name || (firstName && lastName ? `${firstName} ${lastName}` : null)
+  if (!email || !password || !fullName) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email, password, and name are required'
     })
   }
 
@@ -70,7 +71,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     id: (MOCK_USERS.length + 1).toString(),
     email,
     password, // In production, this would be hashed
-    name,
+    name: fullName,
     role: 'admin'
   }
 

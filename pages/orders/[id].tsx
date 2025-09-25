@@ -107,7 +107,7 @@ export default function OrderDetail() {
                 setLoading(true)
                 console.log('🔍 Fetching order:', id)
 
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/orders/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'

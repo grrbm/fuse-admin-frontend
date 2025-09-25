@@ -51,7 +51,7 @@ export default function CreateProduct() {
             const formData = new FormData()
             formData.append('image', imageFile)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${productId}/upload-image`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${productId}/upload-image`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -94,7 +94,7 @@ export default function CreateProduct() {
         try {
             console.log('🔍 Creating new product')
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -120,7 +120,7 @@ export default function CreateProduct() {
                         }
                     }
 
-                    router.push(`/products/${newProductId}`)
+                    router.push(`/api/products/${newProductId}`)
                 } else {
                     setError(data.message || 'Failed to create product')
                 }
@@ -232,7 +232,7 @@ export default function CreateProduct() {
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="outline"
-                                onClick={() => router.push('/products')}
+                                onClick={() => router.push('/api/products')}
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back to Products
@@ -561,7 +561,7 @@ export default function CreateProduct() {
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => router.push('/products')}
+                                onClick={() => router.push('/api/products')}
                                 disabled={loading}
                             >
                                 Cancel

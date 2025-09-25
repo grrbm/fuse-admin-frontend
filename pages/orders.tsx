@@ -109,7 +109,7 @@ export default function Orders() {
         // Test basic connectivity first
         try {
             console.log('🔍 Testing basic connectivity to /auth/me...')
-            const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/me`, {
+            const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -130,7 +130,7 @@ export default function Orders() {
 
         console.log('🔍 🚀 STARTING ACTUAL ORDERS FETCH')
         console.log('🔍 Target clinic ID:', userWithClinic.clinicId)
-        console.log('🔍 API URL:', `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/orders/by-clinic/${userWithClinic.clinicId}`)
+        console.log('🔍 API URL:', `${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/by-clinic/${userWithClinic.clinicId}`)
 
         try {
             setLoading(true)
@@ -145,13 +145,13 @@ export default function Orders() {
 
             console.log('🔍 Making fetch request...')
             console.log('🔍 📡 Making API request...')
-            console.log('🔍 📡 Full URL:', `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/orders/by-clinic/${userWithClinic.clinicId}`)
+            console.log('🔍 📡 Full URL:', `${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/by-clinic/${userWithClinic.clinicId}`)
             console.log('🔍 📡 Headers:', {
                 'Authorization': `Bearer ${token.substring(0, 20)}...`, // Don't log full token
                 'Content-Type': 'application/json'
             })
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/orders/by-clinic/${userWithClinic.clinicId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/by-clinic/${userWithClinic.clinicId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
