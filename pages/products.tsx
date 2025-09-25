@@ -16,7 +16,8 @@ import {
     CheckCircle,
     XCircle,
     Clock,
-    AlertCircle
+    AlertCircle,
+    ImageIcon
 } from 'lucide-react'
 
 interface Product {
@@ -25,6 +26,7 @@ interface Product {
     price: number
     pharmacyProductId?: string
     dosage?: string
+    imageUrl?: string
     active: boolean
     createdAt: string
     updatedAt: string
@@ -102,6 +104,8 @@ export default function Products() {
                     console.log('✅ API call successful!')
                     const products = data.data || []
                     console.log('🔍 Products count:', products.length)
+                    console.log('🔍 Products with images:', products.filter(p => p.imageUrl).length)
+                    console.log('🔍 Sample product with image:', products.find(p => p.imageUrl))
 
                     setProducts(products)
 
@@ -259,10 +263,36 @@ export default function Products() {
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-primary/10 rounded-lg">
-                                                    <Package className="h-6 w-6 text-primary" />
+                                                <div className="relative">
+                                                    {product.imageUrl ? (
+                                                        <img
+                                                            src={product.imageUrl}
+                                                            alt={product.name}
+                                                            className="w-12 h-12 rounded-lg object-cover border"
+                                                            onLoad={(e) => {
+                                                                console.log('✅ Image loaded successfully:', product.imageUrl);
+                                                            }}
+                                                            onError={(e) => {
+                                                                console.log('❌ Image failed to load:', product.imageUrl, e);
+                                                                // Fallback to icon if image fails to load
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.style.display = 'none';
+                                                                const parent = target.parentElement;
+                                                                if (parent && !parent.querySelector('.fallback-icon')) {
+                                                                    const icon = document.createElement('div');
+                                                                    icon.className = 'p-2 bg-primary/10 rounded-lg fallback-icon';
+                                                                    icon.innerHTML = '<svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>';
+                                                                    parent.appendChild(icon);
+                                                                }
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div className="p-2 bg-primary/10 rounded-lg">
+                                                            <Package className="h-6 w-6 text-primary" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div>
+                                                <div className="flex-1">
                                                     <CardTitle className="text-lg">{product.name}</CardTitle>
                                                     <p className="text-sm text-muted-foreground">
                                                         {product.pharmacyProductId && `Pharmacy ID: ${product.pharmacyProductId}`}
