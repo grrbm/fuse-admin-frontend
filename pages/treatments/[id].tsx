@@ -360,34 +360,6 @@ export default function TreatmentDetail() {
                                 </CardContent>
                             </Card>
 
-                            {/* Treatment Products with Specific Dosages */}
-                            {treatment?.treatmentProducts && treatment.treatmentProducts.length > 0 && (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Treatment-Specific Products</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-4">
-                                            {(treatment?.treatmentProducts || []).map((treatmentProduct) => (
-                                                <div key={treatmentProduct.id} className="flex justify-between items-start p-4 border rounded-lg">
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold">{treatmentProduct.product?.name || 'N/A'}</h4>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Specific Dosage: {treatmentProduct.dosage || 'N/A'}
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Base Price: {formatPrice(treatmentProduct.product?.price || 0)}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="font-semibold">{formatPrice(treatmentProduct.product?.price || 0)}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
                         </div>
 
                         {/* Sidebar */}
