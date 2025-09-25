@@ -15,35 +15,14 @@ import {
     XCircle,
     Upload,
     ImageIcon,
-    Trash2,
     Package,
     DollarSign,
     FileText,
     Hash
 } from 'lucide-react'
 
-interface Product {
-    id: string
-    name: string
-    price: number
-    description?: string
-    pharmacyProductId?: string
-    dosage?: string
-    imageUrl?: string | null
-    activeIngredients?: string[]
-    active: boolean
-    createdAt: string
-    updatedAt: string
-    treatments?: Array<{
-        id: string
-        name: string
-    }>
-}
-
-export default function ProductEdit() {
-    const [product, setProduct] = useState<Product | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [saving, setSaving] = useState(false)
+export default function CreateProduct() {
+    const [loading, setLoading] = useState(false)
     const [uploadingImage, setUploadingImage] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [imageFile, setImageFile] = useState<File | null>(null)
@@ -60,98 +39,44 @@ export default function ProductEdit() {
     })
     const { user, token } = useAuth()
     const router = useRouter()
-    const { id } = router.query
-
-    useEffect(() => {
-        const fetchProduct = async () => {
-            if (!token || !id) return
-
-            try {
-                setLoading(true)
-                console.log('🔍 Fetching product for edit:', id)
-
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                })
-
-                if (response.ok) {
-                    const data = await response.json()
-                    if (data.success) {
-                        const productData = data.data
-                        setProduct(productData)
-                        setFormData({
-                            name: productData.name,
-                            price: productData.price,
-                            description: productData.description || '',
-                            pharmacyProductId: productData.pharmacyProductId || '',
-                            dosage: productData.dosage || '',
-                            activeIngredients: productData.activeIngredients || [],
-                            active: productData.active
-                        })
-                    } else {
-                        setError(data.message || 'Failed to load product')
-                    }
-                } else {
-                    setError(`Failed to load product: ${response.status} ${response.statusText}`)
-                }
-            } catch (err) {
-                console.error('Error fetching product:', err)
-                setError('Failed to load product')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchProduct()
-    }, [token, id])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!product || !token) return
+        if (!token) return
 
-        setSaving(true)
+        setLoading(true)
         setError(null)
 
         try {
-            console.log('🔍 Saving product:', product.id)
+            console.log('🔍 Creating new product')
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${product.id}`, {
-                method: 'PUT',
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    name: formData.name,
-                    price: formData.price,
-                    description: formData.description,
-                    pharmacyProductId: formData.pharmacyProductId,
-                    dosage: formData.dosage,
-                    activeIngredients: formData.activeIngredients,
-                    active: formData.active
-                })
+                body: JSON.stringify(formData)
             })
 
             if (response.ok) {
                 const data = await response.json()
                 if (data.success) {
-                    console.log('✅ Product updated successfully')
-                    router.push(`/products/${product.id}`)
+                    console.log('✅ Product created successfully')
+                    const newProductId = data.data.id
+                    router.push(`/products/${newProductId}`)
                 } else {
-                    setError(data.message || 'Failed to update product')
+                    setError(data.message || 'Failed to create product')
                 }
             } else {
                 const errorText = await response.text()
-                setError(`Failed to update product: ${response.status} ${response.statusText}`)
+                setError(`Failed to create product: ${response.status} ${response.statusText}`)
             }
         } catch (err) {
-            console.error('Error updating product:', err)
-            setError('Failed to update product')
+            console.error('Error creating product:', err)
+            setError('Failed to create product')
         } finally {
-            setSaving(false)
+            setLoading(false)
         }
     }
 
@@ -199,7 +124,7 @@ export default function ProductEdit() {
     }
 
     const handleImageUpload = async () => {
-        if (!product || !imageFile || !token) return
+        if (!imageFile || !token) return
 
         setUploadingImage(true)
         setError(null)
@@ -208,133 +133,38 @@ export default function ProductEdit() {
             const formData = new FormData()
             formData.append('image', imageFile)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${product.id}/upload-image`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            })
+            // We'll upload the image after the product is created
+            // For now, just clear the file selection
+            setImageFile(null)
+            setImagePreview(null)
 
-            if (response.ok) {
-                const data = await response.json()
-                if (data.success) {
-                    // Update the product with the new image URL
-                    setProduct(prev => prev ? { ...prev, imageUrl: data.data.imageUrl } : null)
-                    setImageFile(null)
-                    setImagePreview(null)
-                    console.log('✅ Image uploaded successfully')
-
-                    // Clear the file input
-                    if (fileInputRef.current) {
-                        fileInputRef.current.value = ''
-                    }
-                } else {
-                    setError(data.message || 'Failed to upload image')
-                }
-            } else {
-                const errorText = await response.text()
-                setError(`Failed to upload image: ${response.status} ${response.statusText}`)
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''
             }
+
+            console.log('✅ Image selected for upload (will be uploaded after product creation)')
+
         } catch (err) {
-            console.error('Error uploading image:', err)
-            setError('Failed to upload image')
+            console.error('Error handling image:', err)
+            setError('Failed to handle image')
         } finally {
             setUploadingImage(false)
         }
     }
 
-    const handleRemoveImage = async () => {
-        if (!product || !token) return
-
-        if (!confirm('Are you sure you want to remove the product image?')) {
-            return
+    const handleRemoveImage = () => {
+        setImageFile(null)
+        setImagePreview(null)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
         }
-
-        setUploadingImage(true)
-        setError(null)
-
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${product.id}/upload-image`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ removeImage: true })
-            })
-
-            if (response.ok) {
-                const data = await response.json()
-                if (data.success) {
-                    // Update the product to remove the image
-                    setProduct(prev => prev ? { ...prev, imageUrl: '' } : null)
-                    console.log('✅ Image removed successfully')
-                } else {
-                    setError(data.message || 'Failed to remove image')
-                }
-            } else {
-                setError(`Failed to remove image: ${response.status} ${response.statusText}`)
-            }
-        } catch (err) {
-            console.error('Error removing image:', err)
-            setError('Failed to remove image')
-        } finally {
-            setUploadingImage(false)
-        }
-    }
-
-    if (loading) {
-        return (
-            <Layout>
-                <div className="min-h-screen bg-background flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-muted-foreground">Loading product...</p>
-                    </div>
-                </div>
-            </Layout>
-        )
-    }
-
-    if (error || !product) {
-        return (
-            <Layout>
-                <div className="min-h-screen bg-background p-6">
-                    <div className="max-w-4xl mx-auto">
-                        <Button
-                            variant="outline"
-                            onClick={() => router.push('/products')}
-                            className="mb-6"
-                        >
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back to Products
-                        </Button>
-
-                        <Card className="p-12 text-center">
-                            <div className="flex flex-col items-center gap-4">
-                                <XCircle className="h-12 w-12 text-red-500" />
-                                <div>
-                                    <h3 className="text-lg font-semibold text-foreground mb-2">Product Not Found</h3>
-                                    <p className="text-muted-foreground mb-4">{error || 'The requested product could not be found.'}</p>
-                                    <Button onClick={() => router.push('/products')}>
-                                        <ArrowLeft className="h-4 w-4 mr-2" />
-                                        Back to Products
-                                    </Button>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-            </Layout>
-        )
     }
 
     return (
         <Layout>
             <Head>
-                <title>Edit {product?.name || 'Product'} - Fuse Admin</title>
-                <meta name="description" content={`Edit product details for ${product?.name || 'Unknown Product'}`} />
+                <title>Create Product - Fuse Admin</title>
+                <meta name="description" content="Create a new product for your clinic" />
             </Head>
 
             <div className="min-h-screen bg-background p-6">
@@ -344,17 +174,17 @@ export default function ProductEdit() {
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="outline"
-                                onClick={() => router.push(`/products/${product.id}`)}
+                                onClick={() => router.push('/products')}
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Product
+                                Back to Products
                             </Button>
                             <div>
-                                <h1 className="text-3xl font-bold text-foreground">Edit Product</h1>
-                                <p className="text-muted-foreground">Update product information</p>
+                                <h1 className="text-3xl font-bold text-foreground">Create Product</h1>
+                                <p className="text-muted-foreground">Add a new product to your clinic catalog</p>
                             </div>
                         </div>
-                        {getStatusBadge(product.active)}
+                        {getStatusBadge(formData.active)}
                     </div>
 
                     {/* Error Message */}
@@ -557,27 +387,6 @@ export default function ProductEdit() {
 
                             {/* Sidebar */}
                             <div className="space-y-6">
-                                {/* Current Product Image */}
-                                {product.imageUrl && (
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Current Image</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <img
-                                                    src={product.imageUrl}
-                                                    alt={product.name}
-                                                    className="w-full max-w-xs mx-auto h-32 object-cover rounded-lg border"
-                                                />
-                                                <p className="text-sm text-muted-foreground mt-2">
-                                                    Current product image
-                                                </p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                )}
-
                                 {/* Product Image Upload */}
                                 <Card>
                                     <CardHeader>
@@ -593,11 +402,11 @@ export default function ProductEdit() {
                                                 <div className="text-center">
                                                     <img
                                                         src={imagePreview}
-                                                        alt="New image preview"
+                                                        alt="Product image preview"
                                                         className="w-full max-w-xs mx-auto h-32 object-cover rounded-lg border-2 border-primary"
                                                     />
                                                     <p className="text-sm text-primary mt-2">
-                                                        New image preview
+                                                        Image preview (will be uploaded after creation)
                                                     </p>
                                                 </div>
                                             )}
@@ -620,7 +429,7 @@ export default function ProductEdit() {
                                                     >
                                                         <span>
                                                             <Upload className="h-4 w-4 mr-2" />
-                                                            {imageFile ? 'Change Image' : 'Upload New Image'}
+                                                            {imageFile ? 'Change Image' : 'Upload Image'}
                                                         </span>
                                                     </Button>
                                                 </label>
@@ -640,45 +449,17 @@ export default function ProductEdit() {
                                                             ) : (
                                                                 <>
                                                                     <Upload className="h-4 w-4 mr-2" />
-                                                                    Upload Image
+                                                                    Select Image
                                                                 </>
                                                             )}
                                                         </Button>
                                                         <Button
                                                             variant="outline"
-                                                            onClick={() => {
-                                                                setImageFile(null)
-                                                                setImagePreview(null)
-                                                                if (fileInputRef.current) {
-                                                                    fileInputRef.current.value = ''
-                                                                }
-                                                            }}
+                                                            onClick={handleRemoveImage}
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
                                                     </div>
-                                                )}
-
-                                                {/* Remove Image Button */}
-                                                {product.imageUrl && (
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={handleRemoveImage}
-                                                        disabled={uploadingImage}
-                                                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                    >
-                                                        {uploadingImage ? (
-                                                            <>
-                                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                                                Removing...
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                                Remove Image
-                                                            </>
-                                                        )}
-                                                    </Button>
                                                 )}
                                             </div>
 
@@ -689,29 +470,20 @@ export default function ProductEdit() {
                                     </CardContent>
                                 </Card>
 
-                                {/* Product Statistics */}
+                                {/* Help Text */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Product Statistics</CardTitle>
+                                        <CardTitle>Instructions</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-3">
-                                            <div className="flex justify-between">
-                                                <span className="text-muted-foreground">Associated Treatments:</span>
-                                                <span className="font-semibold">{(product?.treatments || []).length}</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-muted-foreground">Active Ingredients:</span>
-                                                <span className="font-semibold">{(product?.activeIngredients || []).length}</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-muted-foreground">Has Image:</span>
-                                                <span className="font-semibold">{product.imageUrl ? 'Yes' : 'No'}</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-muted-foreground">Created:</span>
-                                                <span className="font-semibold text-xs">{new Date(product.createdAt).toLocaleDateString()}</span>
-                                            </div>
+                                        <div className="space-y-2 text-sm text-muted-foreground">
+                                            <p>1. Fill in the basic product information</p>
+                                            <p>2. Add active ingredients if applicable</p>
+                                            <p>3. Optionally select a product image</p>
+                                            <p>4. Click "Create Product" to save</p>
+                                            <p className="pt-2 border-t">
+                                                <strong>Note:</strong> You can edit the product and upload images after creation.
+                                            </p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -723,24 +495,24 @@ export default function ProductEdit() {
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => router.push(`/products/${product.id}`)}
-                                disabled={saving}
+                                onClick={() => router.push('/products')}
+                                disabled={loading}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={saving}
+                                disabled={loading || !formData.name.trim()}
                             >
-                                {saving ? (
+                                {loading ? (
                                     <>
                                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                        Saving...
+                                        Creating...
                                     </>
                                 ) : (
                                     <>
                                         <Save className="h-4 w-4 mr-2" />
-                                        Save Changes
+                                        Create Product
                                     </>
                                 )}
                             </Button>

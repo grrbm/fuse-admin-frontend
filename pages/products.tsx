@@ -26,7 +26,8 @@ interface Product {
     price: number
     pharmacyProductId?: string
     dosage?: string
-    imageUrl?: string
+    imageUrl?: string | null
+    clinicId?: string
     active: boolean
     createdAt: string
     updatedAt: string
@@ -106,12 +107,17 @@ export default function Products() {
                     console.log('🔍 Products count:', products.length)
                     console.log('🔍 Products with images:', products.filter(p => p.imageUrl).length)
                     console.log('🔍 Sample product with image:', products.find(p => p.imageUrl))
+                    console.log('🔍 Products with clinicId:', products.filter(p => p.clinicId).length)
+                    console.log('🔍 Products without clinicId:', products.filter(p => !p.clinicId).length)
+                    console.log('🔍 All products:', products.map(p => ({ id: p.id, name: p.name, clinicId: p.clinicId })))
 
                     setProducts(products)
 
                     if (products.length === 0) {
-                        console.log('ℹ️ No products found for this clinic')
-                        setError('No products found for your clinic')
+                        console.log('ℹ️ No products found for this clinic - checking user state...')
+                        console.log('🔍 User clinicId:', (user as any)?.clinicId)
+                        console.log('🔍 User role:', (user as any)?.role)
+                        setError(`No products found for your clinic. Please check your clinic assignment.`)
                     } else {
                         console.log('✅ Products loaded successfully:', products.length, 'products')
                     }
@@ -208,9 +214,9 @@ export default function Products() {
                                 const hasClinic = !!clinicId && clinicId !== 'null'
 
                                 if (!hasClinic) {
-                                    alert(`❌ Clinic ID Issue\n\nCurrent Clinic ID: ${clinicId}\n\n💡 Solutions:\n1. Log out and back in\n2. Clear browser cache\n3. Check if SQL update worked\n4. Contact support if persists`)
+                                    alert(`❌ Clinic ID Issue\n\nCurrent Clinic ID: ${clinicId}\nUser Role: ${(user as any)?.role}\n\n💡 Solutions:\n1. Log out and back in\n2. Clear browser cache\n3. Check if SQL update worked\n4. Contact support if persists`)
                                 } else {
-                                    alert(`✅ Clinic Access\n\nClinic ID: ${clinicId}\nLoading: ${loading}\nError: ${error || 'none'}`)
+                                    alert(`✅ Clinic Access\n\nClinic ID: ${clinicId}\nUser Role: ${(user as any)?.role}\nLoading: ${loading}\nError: ${error || 'none'}`)
                                 }
                             }}
                         >
@@ -226,7 +232,11 @@ export default function Products() {
                             <h1 className="text-3xl font-bold text-foreground mb-2">Products</h1>
                             <p className="text-muted-foreground">Manage and monitor your clinic's product catalog</p>
                         </div>
-                        <Button onClick={() => router.push('/products/new')}>
+                        <Button
+                            onClick={() => router.push('/products/new')}
+                            disabled={!userWithClinic?.clinicId}
+                            title={!userWithClinic?.clinicId ? 'You need to be assigned to a clinic to add products' : 'Add new product'}
+                        >
                             <Plus className="h-4 w-4 mr-2" />
                             Add Product
                         </Button>
@@ -239,13 +249,14 @@ export default function Products() {
                                 <XCircle className="h-5 w-5 text-red-400 mr-2 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                     <p className="text-red-700">{error}</p>
-                                    {error.includes('Clinic Access Required') && (
+                                    {(error.includes('Clinic Access Required') || error.includes('No products found')) && (
                                         <div className="mt-2 text-sm text-red-600">
                                             <p className="font-medium">🔧 Troubleshooting Steps:</p>
                                             <ol className="list-decimal list-inside mt-1">
+                                                <li>Use the "📊 Show State" button above to check your clinic assignment</li>
                                                 <li>Try logging out and back in to refresh your session</li>
                                                 <li>Clear your browser cache and cookies</li>
-                                                <li>Use the "📊 Show State" button above to verify your clinic ID</li>
+                                                <li>Check the browser console for detailed debug information</li>
                                                 <li>Contact support if the issue persists</li>
                                             </ol>
                                         </div>

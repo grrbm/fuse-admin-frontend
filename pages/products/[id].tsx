@@ -30,7 +30,7 @@ interface Product {
     description?: string
     pharmacyProductId?: string
     dosage?: string
-    imageUrl?: string
+    imageUrl?: string | null
     activeIngredients?: string[]
     active: boolean
     createdAt: string
