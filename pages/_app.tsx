@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import "../styles/globals.css"
 
@@ -20,18 +21,20 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="description" content="Admin dashboard for managing business operations" />
         <meta name="generator" content="Next.js" />
       </Head>
-      <AuthProvider>
-        <div className="font-sans">
-          {isPublicPage ? (
-            <Component {...pageProps} />
-          ) : (
-            <ProtectedRoute>
+      <ThemeProvider>
+        <AuthProvider>
+          <div className="font-sans">
+            {isPublicPage ? (
               <Component {...pageProps} />
-            </ProtectedRoute>
-          )}
-          <Analytics />
-        </div>
-      </AuthProvider>
+            ) : (
+              <ProtectedRoute>
+                <Component {...pageProps} />
+              </ProtectedRoute>
+            )}
+            <Analytics />
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
     </>
   )
 }
