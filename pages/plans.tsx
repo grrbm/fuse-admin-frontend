@@ -451,84 +451,72 @@ export default function Plans() {
               <p className="text-muted-foreground">Everything you need to scale your telehealth practice</p>
             </div>
 
-            {/* Benefits Grid - Enhanced Layout */}
+            {/* Benefits Grid - Clean Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-              {/* Recurring Revenue - Hero Benefit */}
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
-                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <CreditCard className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">Recurring Revenue</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      Build predictable monthly income that grows with your patient base
-                    </p>
-                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
-                      <span>Monthly Recurring Revenue</span>
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </div>
+              {/* Recurring Revenue */}
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2 text-foreground">Recurring Revenue</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Build predictable monthly income that grows with your patient base
+                  </p>
+                  <div className="inline-flex items-center text-xs font-medium text-blue-600">
+                    <span>Monthly Recurring Revenue</span>
+                    <ArrowRight className="w-3 h-3 ml-1" />
                   </div>
                 </div>
               </div>
 
               {/* Fast Setup */}
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
-                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Clock className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">1-2 Week Setup</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      From signup to treating your first patient in record time
-                    </p>
-                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
-                      <span>Get started today</span>
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </div>
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Clock className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2 text-foreground">1-2 Week Setup</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    From signup to treating your first patient in record time
+                  </p>
+                  <div className="inline-flex items-center text-xs font-medium text-blue-600">
+                    <span>Get started today</span>
+                    <ArrowRight className="w-3 h-3 ml-1" />
                   </div>
                 </div>
               </div>
 
               {/* Zero Risk */}
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
-                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Shield className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">Zero Compliance Risk</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      Licensed physicians handle everything—you focus on growth
-                    </p>
-                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
-                      <span>HIPAA compliant</span>
-                      <Check className="w-4 h-4 ml-1" />
-                    </div>
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2 text-foreground">Zero Compliance Risk</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Licensed physicians handle everything—you focus on growth
+                  </p>
+                  <div className="inline-flex items-center text-xs font-medium text-blue-600">
+                    <span>HIPAA compliant</span>
+                    <Check className="w-3 h-3 ml-1" />
                   </div>
                 </div>
               </div>
 
               {/* Transparent Pricing */}
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
-                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <CreditCard className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">Transparent Pricing</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      Simple monthly fee + 1% transaction rate. No hidden costs or surprises
-                    </p>
-                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
-                      <span>Industry standard rates</span>
-                      <Check className="w-4 h-4 ml-1" />
-                    </div>
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2 text-foreground">Transparent Pricing</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Simple monthly fee + 1% transaction rate. No hidden costs or surprises
+                  </p>
+                  <div className="inline-flex items-center text-xs font-medium text-blue-600">
+                    <span>Industry standard rates</span>
+                    <Check className="w-3 h-3 ml-1" />
                   </div>
                 </div>
               </div>

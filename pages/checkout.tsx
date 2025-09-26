@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { 
   ArrowLeft,
   Check,
@@ -225,95 +226,182 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Security & Features */}
-                  <div className="space-y-3 pt-4 border-t">
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <Check className="w-4 h-4" />
-                      <span>No commitment</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <Check className="w-4 h-4" />
-                      <span>Cancel anytime</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <Check className="w-4 h-4" />
-                      <span>Secure payment processing</span>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Checkout Form */}
+            {/* Payment Form */}
             <div className="order-1 lg:order-2">
               <div className="space-y-6">
                 {/* Header */}
                 <div className="text-center">
-                  <h1 className="text-3xl font-bold text-foreground mb-2">
-                    Complete your setup
+                  <h1 className="text-2xl font-bold text-foreground mb-2">
+                    Payment details
                   </h1>
                   <p className="text-muted-foreground">
-                    You're one step away from launching your telehealth practice
+                    Complete your payment to get started today
                   </p>
                 </div>
 
-                {/* Timeline */}
-                <div className="bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-blue-500" />
-                    What happens after payment
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-                      <span className="text-sm">Immediate access to your admin dashboard</span>
+                {/* Payment Form */}
+                <Card className="border border-gray-200">
+                  <CardContent className="p-6 space-y-6">
+                    {/* Contact Information */}
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-4">Contact information</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">Email address</label>
+                          <Input 
+                            type="email" 
+                            placeholder="Enter your email"
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">First name</label>
+                            <Input 
+                              type="text" 
+                              placeholder="First name"
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">Last name</label>
+                            <Input 
+                              type="text" 
+                              placeholder="Last name"
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                      <span className="text-sm">Onboarding call scheduled within 24 hours</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                      <span className="text-sm">Platform configured and launched in 1-2 weeks</span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Trust Signals */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <Shield className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                    <div className="text-sm font-medium">HIPAA Compliant</div>
-                    <div className="text-xs text-muted-foreground">Enterprise security</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <Lock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Secure Payment</div>
-                    <div className="text-xs text-muted-foreground">256-bit SSL encryption</div>
-                  </div>
+                    {/* Payment Method */}
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-4">Payment method</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">Card number</label>
+                          <div className="relative">
+                            <Input 
+                              type="text" 
+                              placeholder="1234 1234 1234 1234"
+                              className="w-full pr-12"
+                            />
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                              <CreditCard className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">Expiry date</label>
+                            <Input 
+                              type="text" 
+                              placeholder="MM / YY"
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">Security code</label>
+                            <Input 
+                              type="text" 
+                              placeholder="CVC"
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">Cardholder name</label>
+                          <Input 
+                            type="text" 
+                            placeholder="Name on card"
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Billing Address */}
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-4">Billing address</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">Country or region</label>
+                          <Input 
+                            type="text" 
+                            placeholder="United States"
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">Address</label>
+                          <Input 
+                            type="text" 
+                            placeholder="Address"
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">City</label>
+                            <Input 
+                              type="text" 
+                              placeholder="City"
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">State</label>
+                            <Input 
+                              type="text" 
+                              placeholder="State"
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">ZIP code</label>
+                            <Input 
+                              type="text" 
+                              placeholder="ZIP"
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Security Notice */}
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Lock className="w-4 h-4" />
+                  <span>Your payment information is secure and encrypted</span>
                 </div>
 
                 {/* CTA Button */}
                 <Button 
                   onClick={handleCompleteCheckout}
                   disabled={isProcessing}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 text-lg font-semibold"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
                 >
                   {isProcessing ? (
                     <>
                       <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Processing...
+                      Processing payment...
                     </>
                   ) : (
                     <>
-                      <CreditCard className="w-5 h-5 mr-2" />
-                      Complete Setup - ${checkoutData.totalAmount.toLocaleString()}
+                      Get started today - ${checkoutData.totalAmount.toLocaleString()}
                     </>
                   )}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  By continuing, you agree to our terms of service and privacy policy.
+                  By completing your purchase, you agree to our terms of service and privacy policy.
                   Your subscription will auto-renew monthly and can be cancelled anytime.
                 </p>
               </div>
