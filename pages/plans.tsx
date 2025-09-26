@@ -10,12 +10,11 @@ import {
   XCircle, 
   Clock, 
   CreditCard, 
-  Star, 
   Check, 
   AlertCircle,
-  Crown,
-  Zap,
-  Building
+  ArrowRight,
+  Building2,
+  Shield
 } from 'lucide-react'
 import Layout from '@/components/Layout'
 
@@ -71,7 +70,6 @@ export default function Plans() {
     
     if (success === 'true') {
       setError(null)
-      // Show success message or redirect
       setTimeout(() => {
         router.replace('/plans', undefined, { shallow: true })
       }, 3000)
@@ -85,7 +83,7 @@ export default function Plans() {
     }
   }, [router.query])
 
-  // Fetch plans and current subscription
+  // Fetch plans and current subscription from backend API
   useEffect(() => {
     const fetchData = async () => {
       if (!token) return
@@ -93,7 +91,7 @@ export default function Plans() {
       try {
         setLoading(true)
         
-        // Fetch available plans
+        // Fetch available plans from backend
         const plansResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/brand-subscriptions/plans`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -105,7 +103,7 @@ export default function Plans() {
           setPlans(plansData.plans)
         }
 
-        // Fetch current subscription
+        // Fetch current subscription from backend
         const subResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/brand-subscriptions/current`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -135,76 +133,51 @@ export default function Plans() {
   const handleSelectPlan = async (planType: string) => {
     if (!token) return
 
-    setCreatingCheckout(planType)
-    setError(null)
+    const planData = {
+      starter: { name: 'Standard', price: 1500 },
+      professional: { name: 'Controlled Substances', price: 2500 }
+    }
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/brand-subscriptions/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          planType,
-          successUrl: `${window.location.origin}/plans?success=true&session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/plans?canceled=true`
+    const selectedPlan = planData[planType as keyof typeof planData]
+    
+    if (selectedPlan) {
+      try {
+        // Save plan selection to user profile
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            selectedPlanType: planType,
+            selectedPlanName: selectedPlan.name,
+            selectedPlanPrice: selectedPlan.price,
+            planSelectionTimestamp: new Date().toISOString()
+          })
         })
-      })
 
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url
-      } else {
-        setError(data.message || 'Failed to create checkout session')
+        // Navigate to onboarding page with plan data
+        router.push({
+          pathname: '/onboarding',
+          query: {
+            planType,
+            planName: selectedPlan.name,
+            planPrice: selectedPlan.price
+          }
+        })
+      } catch (error) {
+        console.error('Error saving plan selection:', error)
+        // Still navigate even if saving fails
+        router.push({
+          pathname: '/onboarding',
+          query: {
+            planType,
+            planName: selectedPlan.name,
+            planPrice: selectedPlan.price
+          }
+        })
       }
-    } catch (err) {
-      setError('Network error. Please try again.')
-    } finally {
-      setCreatingCheckout(null)
-    }
-  }
-
-  const handleCancelSubscription = async () => {
-    if (!token || !currentSubscription) return
-
-    if (!confirm('Are you sure you want to cancel your subscription? This action cannot be undone.')) {
-      return
-    }
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/brand-subscriptions/cancel`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        // Refresh the page to update subscription status
-        window.location.reload()
-      } else {
-        setError(data.message || 'Failed to cancel subscription')
-      }
-    } catch (err) {
-      setError('Network error. Please try again.')
-    }
-  }
-
-  const getPlanIcon = (planType: string) => {
-    switch (planType) {
-      case 'starter':
-        return <Zap className="h-6 w-6" />
-      case 'professional':
-        return <Star className="h-6 w-6" />
-      case 'enterprise':
-        return <Crown className="h-6 w-6" />
-      default:
-        return <Building className="h-6 w-6" />
     }
   }
 
@@ -246,12 +219,48 @@ export default function Plans() {
       </Head>
       
       <div className="min-h-screen bg-background p-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Brand Partner Plans</h1>
-            <p className="text-muted-foreground text-lg">Choose the perfect plan for your brand's needs</p>
-          </div>
+        <div className="max-w-5xl mx-auto">
+            {/* Hero Section - Conversion Optimized */}
+            <div className="text-center mb-16">
+              {/* Social Proof Bar */}
+              <div className="flex items-center justify-center gap-6 mb-8 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span>500+ clinics powered</span>
+                </div>
+                <div className="w-px h-4 bg-border"></div>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <span>HIPAA compliant</span>
+                </div>
+                <div className="w-px h-4 bg-border"></div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-500" />
+                  <span>Launch in 2 weeks</span>
+                </div>
+                <div className="w-px h-4 bg-border"></div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  Talk to expert
+                </Button>
+              </div>
+
+              {/* Main Hero Content */}
+              <h1 className="text-5xl font-bold text-foreground mb-6 leading-tight">
+                Turn Your Clinic Into a
+                <span className="text-orange-500 block">Telehealth Powerhouse</span>
+              </h1>
+              
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
+                Your brand + Licensed physicians + Pharmacies = 
+                <span className="font-semibold text-foreground">Recurring revenue</span>
+              </p>
+
+            </div>
 
           {/* Error Message */}
           {error && (
@@ -290,8 +299,7 @@ export default function Plans() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <h3 className="font-semibold flex items-center gap-2">
-                      {getPlanIcon(currentSubscription.planType)}
+                    <h3 className="font-semibold">
                       {currentSubscription.planDetails?.name} Plan
                     </h3>
                     <p className="text-2xl font-bold text-primary">${currentSubscription.monthlyPrice}/month</p>
@@ -308,181 +316,225 @@ export default function Plans() {
                       </p>
                     </div>
                   )}
-                  
-                  <div className="flex justify-end">
-                    {(currentSubscription.status === 'active' || currentSubscription.status === 'past_due') && (
-                      <Button 
-                        variant="destructive" 
-                        onClick={handleCancelSubscription}
-                      >
-                        Cancel Subscription
-                      </Button>
-                    )}
-                  </div>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Plans Grid */}
-          {plans && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(plans).map(([planType, plan]) => (
-                <Card 
-                  key={planType} 
-                  className={`relative ${planType === 'professional' ? 'border-primary ring-2 ring-primary ring-opacity-20' : ''}`}
-                >
-                  {planType === 'professional' && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-                    </div>
-                  )}
-                  
-                  <CardHeader className="text-center">
-                    <div className="flex justify-center mb-2">
-                      {getPlanIcon(planType)}
-                    </div>
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
-                    <div className="mt-2">
-                      <span className="text-3xl font-bold text-primary">${plan.price}</span>
-                      <span className="text-muted-foreground">/month</span>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center text-sm">
-                        <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                        {plan.features.maxProducts === -1 ? 'Unlimited products' : `Up to ${plan.features.maxProducts} products`}
-                      </li>
-                      <li className="flex items-center text-sm">
-                        <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                        {plan.features.maxCampaigns === -1 ? 'Unlimited campaigns' : `Up to ${plan.features.maxCampaigns} campaigns`}
-                      </li>
-                      <li className="flex items-center text-sm">
-                        <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                        Advanced analytics
-                      </li>
-                      <li className="flex items-center text-sm">
-                        <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                        {plan.features.customerSupport} support
-                      </li>
-                      {plan.features.customBranding && (
-                        <li className="flex items-center text-sm">
-                          <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          Custom branding
-                        </li>
-                      )}
-                      {plan.features.apiAccess && (
-                        <li className="flex items-center text-sm">
-                          <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          API access
-                        </li>
-                      )}
-                      {plan.features.whiteLabel && (
-                        <li className="flex items-center text-sm">
-                          <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          White-label solution
-                        </li>
-                      )}
-                      {plan.features.customIntegrations && (
-                        <li className="flex items-center text-sm">
-                          <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          Custom integrations
-                        </li>
-                      )}
-                    </ul>
-                    
-                    <Button 
-                      className="w-full"
-                      variant={planType === 'professional' ? 'default' : 'outline'}
-                      onClick={() => handleSelectPlan(planType)}
-                      disabled={
-                        !!creatingCheckout || 
-                        (currentSubscription?.planType === planType && currentSubscription?.isActive)
-                      }
-                    >
-                      {creatingCheckout === planType ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                          Processing...
-                        </>
-                      ) : currentSubscription?.planType === planType && currentSubscription?.isActive ? (
-                        'Current Plan'
-                      ) : (
-                        'Choose Plan'
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Features Comparison */}
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-center mb-8">Feature Comparison</h2>
-            <Card>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-muted">
-                      <tr>
-                        <th className="text-left p-4 font-semibold">Feature</th>
-                        <th className="text-center p-4 font-semibold">Starter</th>
-                        <th className="text-center p-4 font-semibold">Professional</th>
-                        <th className="text-center p-4 font-semibold">Enterprise</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      <tr>
-                        <td className="p-4 font-medium">Products</td>
-                        <td className="p-4 text-center">50</td>
-                        <td className="p-4 text-center">200</td>
-                        <td className="p-4 text-center">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="p-4 font-medium">Campaigns</td>
-                        <td className="p-4 text-center">5</td>
-                        <td className="p-4 text-center">20</td>
-                        <td className="p-4 text-center">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="p-4 font-medium">Analytics Access</td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                      </tr>
-                      <tr>
-                        <td className="p-4 font-medium">Customer Support</td>
-                        <td className="p-4 text-center">Email</td>
-                        <td className="p-4 text-center">Priority</td>
-                        <td className="p-4 text-center">Dedicated</td>
-                      </tr>
-                      <tr>
-                        <td className="p-4 font-medium">Custom Branding</td>
-                        <td className="p-4 text-center">-</td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                      </tr>
-                      <tr>
-                        <td className="p-4 font-medium">API Access</td>
-                        <td className="p-4 text-center">-</td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                      </tr>
-                      <tr>
-                        <td className="p-4 font-medium">White-label Solution</td>
-                        <td className="p-4 text-center">-</td>
-                        <td className="p-4 text-center">-</td>
-                        <td className="p-4 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                      </tr>
-                    </tbody>
-                  </table>
+          {/* Plans Grid - Only show Standard and Controlled Substances */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+            {/* Standard Plan - Permanent elevation with enhanced hover */}
+            <Card className="relative group cursor-pointer transition-all duration-300 shadow-xl scale-105 border-primary hover:shadow-2xl hover:scale-110 hover:border-primary/80 flex flex-col">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-primary text-primary-foreground font-medium">
+                  MOST POPULAR
+                </Badge>
+              </div>
+              <div className="absolute top-4 left-4">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                  Monthly
+                </Badge>
+              </div>
+              
+              <CardHeader className="pt-12 pb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="h-5 w-5" />
+                  <CardTitle className="text-xl font-semibold">Standard</CardTitle>
                 </div>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold">$1,500</span>
+                  <span className="text-muted-foreground"> / month</span>
+                  <div className="text-xs text-muted-foreground mt-1">+ 1% transaction fee</div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Core software to manage patient journeys, connect with Fuse telehealth
+                  physicians, and automate pharmacy fulfillment.
+                </p>
+              </CardHeader>
+              
+              <CardContent className="flex flex-col h-full">
+                <ul className="space-y-3 mb-8 flex-grow">
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Ideal for wellness, aesthetics, weight-loss, and lifestyle telehealth brands that don't require controlled scripts.</span>
+                  </li>
+                </ul>
+                
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors mt-auto"
+                  onClick={() => handleSelectPlan('starter')}
+                  disabled={
+                    !!creatingCheckout || 
+                    (currentSubscription?.planType === 'starter' && currentSubscription?.isActive)
+                  }
+                >
+                  {creatingCheckout === 'starter' ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Processing...
+                    </>
+                  ) : currentSubscription?.planType === 'starter' && currentSubscription?.isActive ? (
+                    'Current Plan'
+                  ) : (
+                    <>
+                      Get started
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Controlled Substances Plan - Only hover effects on interaction */}
+            <Card className="relative group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 hover:border-primary flex flex-col border-muted">
+              <div className="absolute top-4 left-4">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                  Monthly
+                </Badge>
+              </div>
+              
+              <CardHeader className="pt-12 pb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-5 w-5" />
+                  <CardTitle className="text-xl font-semibold">Controlled Substances</CardTitle>
+                </div>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold">$2,500</span>
+                  <span className="text-muted-foreground"> / month</span>
+                  <div className="text-xs text-muted-foreground mt-1">+ 1% transaction fee</div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Everything in the standard package plus the workflows you need to
+                  prescribe regulated therapies through Fuse doctors and pharmacies.
+                </p>
+              </CardHeader>
+              
+              <CardContent className="flex flex-col h-full">
+                <ul className="space-y-3 mb-8 flex-grow">
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Perfect for clinics offering TRT (testosterone replacement), growth hormone releasing peptides, and other Schedule III therapies that require licensed prescribers.</span>
+                  </li>
+                </ul>
+                
+                <Button 
+                  className="w-full bg-white border border-gray-300 text-gray-900 hover:bg-gray-50 transition-colors mt-auto"
+                  onClick={() => handleSelectPlan('professional')}
+                  disabled={
+                    !!creatingCheckout || 
+                    (currentSubscription?.planType === 'professional' && currentSubscription?.isActive)
+                  }
+                >
+                  {creatingCheckout === 'professional' ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Processing...
+                    </>
+                  ) : currentSubscription?.planType === 'professional' && currentSubscription?.isActive ? (
+                    'Current Plan'
+                  ) : (
+                    <>
+                      Get started
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
               </CardContent>
             </Card>
           </div>
+
+          {/* Key Benefits Section - Enhanced UX */}
+          <div className="max-w-5xl mx-auto mt-16">
+            {/* Section Header */}
+            <div className="text-center mb-12">
+              <h2 className="text-2xl font-bold mb-3">Why clinics choose Fuse</h2>
+              <p className="text-muted-foreground">Everything you need to scale your telehealth practice</p>
+            </div>
+
+            {/* Benefits Grid - Enhanced Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+              {/* Recurring Revenue - Hero Benefit */}
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
+                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <CreditCard className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-foreground">Recurring Revenue</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Build predictable monthly income that grows with your patient base
+                    </p>
+                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
+                      <span>Monthly Recurring Revenue</span>
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fast Setup */}
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
+                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Clock className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-foreground">1-2 Week Setup</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      From signup to treating your first patient in record time
+                    </p>
+                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
+                      <span>Get started today</span>
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Zero Risk */}
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
+                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Shield className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-foreground">Zero Compliance Risk</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Licensed physicians handle everything—you focus on growth
+                    </p>
+                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
+                      <span>HIPAA compliant</span>
+                      <Check className="w-4 h-4 ml-1" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transparent Pricing */}
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-300"></div>
+                <div className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <CreditCard className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-foreground">Transparent Pricing</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Simple monthly fee + 1% transaction rate. No hidden costs or surprises
+                    </p>
+                    <div className="mt-4 inline-flex items-center text-sm font-medium text-blue-600">
+                      <span>Industry standard rates</span>
+                      <Check className="w-4 h-4 ml-1" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </Layout>
